@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rawbank — Banking Beyond Limits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+:root {
+  --orange: #EE9221;
+  --orange-dark: #C07318;
+  --orange-hover: #F3AB54;
+  --beige: #FFF1E0;
+  --blue: #1C3F71;
+  --blue-2: #4A6A99;
+  --neutral: #E0E0E0;
+  --gold: #FFBF00;
+  --green: #388E3C;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#fff;
+  color:var(--blue);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:#FFF1E0}
+::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
+
+/* CURSOR */
+#cursor{
+  position:fixed;width:10px;height:10px;
+  background:var(--orange);border-radius:50%;
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  transition:width .3s,height .3s,opacity .3s;
+  mix-blend-mode:multiply;
+  top:-20px;left:-20px;
+}
+#cursor-ring{
+  position:fixed;width:38px;height:38px;
+  border:1.5px solid rgba(238,146,33,.45);
+  border-radius:50%;pointer-events:none;
+  z-index:99998;transform:translate(-50%,-50%);
+  top:-20px;left:-20px;
+  transition:width .3s,height .3s,border-color .3s;
+}
+body:hover #cursor{opacity:1}
+
+/* LOADER */
+#loader{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;overflow:hidden;
+}
+#loader-left{
+  flex:1;background:var(--orange);
+  display:flex;align-items:center;justify-content:flex-end;
+  padding-right:32px;
+}
+#loader-right{
+  flex:1;background:#fff;
+  display:flex;align-items:center;justify-content:flex-start;
+  padding-left:32px;
+}
+.loader-word{
+  font-family:'Playfair Display',serif;
+  font-weight:900;font-size:clamp(3rem,6vw,5rem);
+  letter-spacing:-.03em;line-height:1;
+}
+.loader-sub{
+  font-family:'DM Mono',monospace;
+  font-size:.65rem;letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--blue-2);margin-top:10px;
+  opacity:0;
+}
+.loader-progress-wrap{
+  width:120px;height:2px;background:#E0E0E0;
+  margin-top:14px;overflow:hidden;border-radius:1px;
+}
+.loader-progress{
+  height:100%;width:0%;background:var(--orange);
+  transition:none;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:20px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  opacity:0;transform:translateY(-30px);
+  transition:background .4s,backdrop-filter .4s,padding .3s,box-shadow .3s;
+}
+nav.scrolled{
+  background:rgba(255,255,255,.93);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  padding:12px 40px;
+  box-shadow:0 1px 0 rgba(224,224,224,.5);
+}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo-dot{
+  width:36px;height:36px;background:var(--orange);
+  border-radius:10px;display:flex;align-items:center;
+  justify-content:center;color:#fff;font-weight:900;font-size:13px;
+  box-shadow:0 4px 16px rgba(238,146,33,.35);
+  flex-shrink:0;font-family:'DM Mono',monospace;
+}
+.nav-logo-text{
+  font-family:'Playfair Display',serif;
+  font-weight:700;font-size:1.2rem;
+  color:var(--blue);letter-spacing:-.02em;
+}
+.nav-links{display:flex;align-items:center;gap:36px}
+.nav-links a{
+  font-size:.82rem;font-weight:500;color:var(--blue-2);
+  text-decoration:none;position:relative;
+  transition:color .2s;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-2px;left:0;
+  width:0;height:1.5px;background:var(--orange);
+  transition:width .3s cubic-bezier(.4,0,.2,1);
+}
+.nav-links a:hover{color:var(--blue)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{display:flex;align-items:center;gap:12px}
+.btn-ghost{
+  font-size:.8rem;font-weight:500;color:var(--blue);
+  background:none;border:none;cursor:none;padding:8px 14px;
+  border-radius:99px;transition:color .2s;
+}
+.btn-ghost:hover{color:var(--orange)}
+.btn-primary{
+  font-size:.8rem;font-weight:600;color:#fff;
+  background:var(--orange);border:none;cursor:none;
+  padding:10px 22px;border-radius:99px;
+  transition:background .25s,transform .2s,box-shadow .25s;
+  box-shadow:0 4px 20px rgba(238,146,33,.3);
+}
+.btn-primary:hover{
+  background:var(--orange-dark);
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 8px 30px rgba(238,146,33,.4);
+}
+.btn-primary:active{transform:scale(.97)}
+
+/* HERO */
+#hero{
+  min-height:100vh;display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:120px 40px 80px;
+  max-width:1400px;margin:0 auto;
+  gap:60px;position:relative;
+}
+.hero-content{position:relative;z-index:2}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;
+  font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--orange);
+  padding:8px 16px;border-radius:99px;
+  background:rgba(238,146,33,.08);
+  border:1px solid rgba(238,146,33,.2);
+  margin-bottom:24px;
+  opacity:0;transform:translateX(-16px);
+}
+.hero-tag-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--orange);animation:pulse 1.5s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hero-h1{
+  font-family:'Playfair Display',serif;
+  font-weight:900;line-height:1.04;
+  font-size:clamp(3rem,4.5vw,4.5rem);
+  letter-spacing:-.035em;color:var(--blue);
+  margin-bottom:24px;
+  opacity:0;transform:translateY(40px);
+}
+.hero-h1 em{color:var(--orange);font-style:italic}
+.hero-sub{
+  font-size:1rem;line-height:1.7;
+  color:var(--blue-2);max-width:420px;
+  margin-bottom:36px;
+  opacity:0;transform:translateY(20px);
+}
+.hero-btns{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:52px;
+  opacity:0;transform:translateY(20px);
+}
+.btn-outline{
+  font-size:.8rem;font-weight:500;
+  color:var(--blue);background:none;
+  border:1px solid rgba(28,63,113,.2);
+  padding:10px 22px;border-radius:99px;
+  cursor:none;
+  display:flex;align-items:center;gap:8px;
+  transition:border-color .2s,transform .2s,background .2s;
+  backdrop-filter:blur(8px);
+}
+.btn-outline:hover{
+  border-color:var(--blue);
+  background:rgba(28,63,113,.04);
+  transform:translateY(-2px);
+}
+.hero-stats{
+  display:flex;gap:40px;
+  opacity:0;transform:translateY(16px);
+}
+.stat-val{
+  font-family:'Playfair Display',serif;
+  font-weight:700;font-size:1.7rem;
+  color:var(--blue);letter-spacing:-.02em;line-height:1;
+}
+.stat-lbl{font-size:.7rem;color:var(--blue-2);margin-top:2px}
+
+/* HERO CANVAS */
+#hero-canvas-wrap{
+  position:relative;height:580px;
+}
+#hero-canvas{width:100%;height:100%}
+.hero-glass-card{
+  position:absolute;
+  background:rgba(255,255,255,.7);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:20px;padding:16px 20px;
+  box-shadow:0 8px 32px rgba(0,0,0,.08);
+  opacity:0;
+}
+.glass-card-label{font-size:.65rem;color:var(--blue-2);font-family:'DM Mono',monospace}
+.glass-card-value{
+  font-family:'Playfair Display',serif;
+  font-size:1.3rem;font-weight:700;
+  color:var(--blue);margin-top:2px;letter-spacing:-.02em;
+}
+.glass-card-sub{font-size:.65rem;color:var(--green);margin-top:4px}
+.glass-card-success{border-color:rgba(56,142,60,.25)}
+
+/* BG blobs */
+.blob{
+  position:absolute;border-radius:50%;
+  pointer-events:none;filter:blur(80px);
+}
+
+/* SECTION SHARED */
+section{position:relative;overflow:hidden}
+.section-inner{max-width:1300px;margin:0 auto;padding:0 40px}
+.section-tag{
+  font-family:'DM Mono',monospace;
+  font-size:.62rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--orange);
+  margin-bottom:16px;display:block;
+}
+.section-h2{
+  font-family:'Playfair Display',serif;
+  font-weight:900;line-height:1.08;
+  font-size:clamp(2rem,3.2vw,3.2rem);
+  letter-spacing:-.03em;color:var(--blue);
+  margin-bottom:16px;
+}
+.section-h2 em{color:var(--orange);font-style:italic}
+.section-sub{
+  font-size:.95rem;line-height:1.7;
+  color:var(--blue-2);max-width:520px;
+}
+
+/* STORY SECTION */
+#story{padding:120px 0;background:var(--beige)}
+#story .section-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.story-text{padding-top:20px}
+.story-feature{
+  display:flex;gap:20px;align-items:flex-start;
+  margin-top:40px;opacity:0;transform:translateX(-24px);
+}
+.feature-icon{
+  width:52px;height:52px;border-radius:16px;
+  background:rgba(238,146,33,.1);border:1px solid rgba(238,146,33,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;flex-shrink:0;
+}
+.feature-title{
+  font-family:'Playfair Display',serif;
+  font-weight:700;font-size:1rem;
+  color:var(--blue);margin-bottom:4px;
+}
+.feature-desc{font-size:.85rem;line-height:1.6;color:var(--blue-2)}
+
+/* STICKY CARD */
+.story-card-wrap{position:sticky;top:100px}
+.premium-card{
+  width:100%;max-width:380px;
+  aspect-ratio:1.586;border-radius:24px;
+  position:relative;overflow:hidden;
+  box-shadow:0 40px 100px rgba(238,146,33,.4),0 10px 30px rgba(0,0,0,.15);
+}
+.card-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,#EE9221 0%,#C07318 55%,#FFBF00 100%);
+}
+.card-shine{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.4) 0%,transparent 55%);
+}
+.card-noise{
+  position:absolute;inset:0;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.card-chip{
+  position:absolute;top:22px;left:24px;
+  width:40px;height:32px;border-radius:6px;
+  background:rgba(255,255,255,.25);
+  border:1px solid rgba(255,255,255,.35);
+  backdrop-filter:blur(4px);
+}
+.card-chip::before{
+  content:'';position:absolute;
+  left:50%;top:0;bottom:0;width:1px;
+  background:rgba(255,255,255,.4);
+}
+.card-chip::after{
+  content:'';position:absolute;
+  top:50%;left:0;right:0;height:1px;
+  background:rgba(255,255,255,.4);
+}
+.card-logo{
+  position:absolute;top:22px;right:24px;
+  width:36px;height:36px;border-radius:8px;
+  background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:.65rem;
+  color:#fff;font-family:'DM Mono',monospace;
+  letter-spacing:.05em;
+}
+.card-number{
+  position:absolute;bottom:52px;left:24px;
+  font-family:'DM Mono',monospace;font-size:.85rem;
+  letter-spacing:.15em;color:rgba(255,255,255,.85);
+}
+.card-holder{
+  position:absolute;bottom:20px;left:24px;
+  font-family:'DM Sans',sans-serif;font-weight:500;
+  font-size:.7rem;color:rgba(255,255,255,.9);
+  letter-spacing:.05em;text-transform:uppercase;
+}
+.card-expiry{
+  position:absolute;bottom:20px;right:24px;
+  font-family:'DM Mono',monospace;font-size:.7rem;
+  color:rgba(255,255,255,.7);
+}
+.card-network{
+  position:absolute;bottom:16px;right:20px;
+  display:flex;
+}
+.card-circle{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.8);
+}
+.card-circle+.card-circle{margin-left:-12px;opacity:.55}
+
+.card-shadow{
+  width:88%;max-width:340px;height:60px;
+  background:rgba(28,63,113,.25);
+  border-radius:50%;filter:blur(24px);
+  margin:12px auto 0;
+}
+
+.card-stat{
+  margin-top:28px;
+  background:rgba(255,255,255,.65);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(238,146,33,.2);
+  border-radius:18px;padding:16px 20px;
+  display:flex;align-items:center;gap:16px;
+  box-shadow:0 4px 24px rgba(0,0,0,.04);
+}
+.card-stat-icon{
+  width:40px;height:40px;border-radius:12px;
+  background:rgba(238,146,33,.1);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+}
+.card-stat-val{
+  font-family:'Playfair Display',serif;
+  font-weight:700;font-size:1.3rem;color:var(--blue);
+}
+.card-stat-lbl{font-size:.7rem;color:var(--blue-2)}
+
+/* IMAGE SHOWCASE */
+#showcase{padding:120px 0;background:#fff}
+#showcase .inner{max-width:1300px;margin:0 auto;padding:0 40px}
+.showcase-header{text-align:center;margin-bottom:64px}
+.showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.img-card{position:relative;border-radius:28px;overflow:hidden}
+.img-card img{
+  width:100%;height:100%;object-fit:cover;
+  display:block;transform:scale(1.1);
+  transition:transform 8s linear;
+}
+.img-card:hover img{transform:scale(1)}
+.img-mask{position:absolute;inset:0;clip-path:inset(0 100% 0 0)}
+.img-overlay{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,rgba(28,63,113,.7),transparent);
+  padding:32px;
+}
+.img-title{
+  font-family:'Playfair Display',serif;
+  font-weight:700;font-size:1.3rem;color:#fff;margin-bottom:4px;
+}
+.img-sub{font-size:.8rem;color:rgba(255,255,255,.75)}
+.img-badge{
+  position:absolute;
+  background:rgba(255,255,255,.7);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.8);
+  border-radius:16px;padding:12px 16px;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+}
+.img-badge-val{
+  font-family:'Playfair Display',serif;
+  font-weight:700;font-size:1rem;color:var(--blue);
+}
+.img-badge-lbl{font-size:.65rem;color:var(--blue-2);margin-top:1px}
+.img2-offset{margin-top:60px}
+
+/* FEATURES */
+#features{padding:120px 0;background:#F7F8FF}
+#features .inner{max-width:1300px;margin:0 auto;padding:0 40px}
+.features-header{text-align:center;margin-bottom:64px}
+.features-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+}
+.feat-card{
+  padding:28px;border-radius:24px;cursor:default;
+  background:rgba(255,255,255,.7);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(224,224,224,.6);
+  box-shadow:0 2px 16px rgba(0,0,0,.03);
+  transition:transform .3s cubic-bezier(.4,0,.2,1),
+             box-shadow .3s,border-color .3s;
+  opacity:0;transform:translateY(28px);
+  position:relative;overflow:hidden;
+}
+.feat-card::before{
+  content:'';position:absolute;
+  top:-40%;right:-40%;width:160px;height:160px;
+  border-radius:50%;opacity:.05;
+  background:var(--accent,var(--orange));
+}
+.feat-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 24px 60px rgba(0,0,0,.1);
+}
+.feat-icon{
+  width:48px;height:48px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;margin-bottom:20px;
+}
+.feat-title{
+  font-family:'Playfair Display',serif;
+  font-weight:700;font-size:1rem;color:var(--blue);
+  letter-spacing:-.01em;margin-bottom:8px;
+}
+.feat-desc{font-size:.82rem;line-height:1.65;color:var(--blue-2);margin-bottom:20px}
+.feat-stat{
+  padding-top:16px;border-top:1px solid rgba(224,224,224,.6);
+  display:flex;align-items:baseline;gap:6px;
+}
+.feat-stat-val{
+  font-family:'Playfair Display',serif;
+  font-weight:900;font-size:1.5rem;
+  letter-spacing:-.02em;
+}
+.feat-stat-lbl{font-size:.7rem;color:var(--blue-2)}
+
+/* BRAND / DARK */
+#brand{padding:120px 0;background:var(--blue);position:relative}
+#brand::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(238,146,33,.12),transparent);
+}
+#brand .inner{max-width:1200px;margin:0 auto;padding:0 40px;position:relative;z-index:1}
+.brand-header{text-align:center;margin-bottom:72px}
+.brand-header .section-tag{color:rgba(238,146,33,.7)}
+.brand-header .section-h2{color:#fff}
+.brand-header .section-sub{color:rgba(255,255,255,.6);margin:0 auto}
+.logos-row{display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap;margin-bottom:72px}
+.logo-pill{
+  display:flex;align-items:center;gap:16px;
+  padding:20px 28px;border-radius:20px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(12px);
+  transition:background .3s,transform .3s;
+  opacity:0;transform:scale(.88);
+}
+.logo-pill:hover{background:rgba(255,255,255,.12);transform:scale(1.03)}
+.logo-square{
+  width:52px;height:52px;border-radius:12px;
+  background:var(--orange);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:#fff;font-family:'DM Mono',monospace;
+  font-size:.85rem;letter-spacing:.02em;
+  box-shadow:0 4px 20px rgba(238,146,33,.4);
+}
+.logo-info-main{
+  font-family:'Playfair Display',serif;
+  font-weight:700;font-size:1.4rem;color:#fff;
+  letter-spacing:-.02em;
+}
+.logo-info-sub{font-size:.65rem;color:rgba(255,255,255,.4);margin-top:2px}
+.brand-plus{color:rgba(255,255,255,.15);font-size:2.5rem;font-weight:200}
+.partners{display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
+.partner-pill{
+  padding:8px 20px;border-radius:99px;
+  font-size:.78rem;color:rgba(255,255,255,.4);
+  border:1px solid rgba(255,255,255,.1);
+  transition:color .2s,border-color .2s,transform .2s;
+  cursor:default;
+}
+.partner-pill:hover{
+  color:var(--orange);
+  border-color:rgba(238,146,33,.4);
+  transform:scale(1.05);
+}
+
+/* NUMBERS ROW */
+#numbers{padding:80px 0;background:var(--beige);border-top:1px solid rgba(238,146,33,.2)}
+.numbers-row{
+  max-width:1100px;margin:0 auto;padding:0 40px;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:40px;align-items:center;
+}
+.num-item{text-align:center;opacity:0;transform:translateY(20px)}
+.num-val{
+  font-family:'Playfair Display',serif;
+  font-weight:900;font-size:2.8rem;
+  color:var(--blue);letter-spacing:-.03em;line-height:1;
+}
+.num-val span{color:var(--orange)}
+.num-lbl{font-size:.75rem;color:var(--blue-2);margin-top:6px;letter-spacing:.05em;text-transform:uppercase}
+.num-divider{
+  width:1px;height:60px;background:rgba(224,224,224,.8);
+  margin:0 auto;
+}
+
+/* CTA */
+#cta{padding:120px 0;background:var(--beige)}
+#cta .inner{max-width:1100px;margin:0 auto;padding:0 40px}
+.cta-box{
+  background:var(--blue);border-radius:36px;
+  padding:80px 80px;text-align:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 40px 100px rgba(28,63,113,.35);
+  opacity:0;transform:translateY(50px);
+}
+.cta-box::before{
+  content:'';position:absolute;
+  top:-120px;left:50%;transform:translateX(-50%);
+  width:500px;height:300px;border-radius:50%;
+  background:rgba(238,146,33,.15);filter:blur(60px);
+}
+.cta-box::after{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.cta-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'DM Mono',monospace;font-size:.62rem;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--orange);padding:8px 18px;border-radius:99px;
+  background:rgba(238,146,33,.15);border:1px solid rgba(238,146,33,.3);
+  margin-bottom:28px;position:relative;z-index:1;
+}
+.cta-h2{
+  font-family:'Playfair Display',serif;
+  font-weight:900;font-size:clamp(2rem,4vw,3.5rem);
+  color:#fff;letter-spacing:-.035em;line-height:1.06;
+  margin-bottom:20px;position:relative;z-index:1;
+}
+.cta-h2 span{color:var(--orange)}
+.cta-sub{
+  font-size:.95rem;color:rgba(255,255,255,.6);
+  line-height:1.7;max-width:460px;margin:0 auto 48px;
+  position:relative;z-index:1;
+}
+.cta-btns{display:flex;align-items:center;justify-content:center;gap:16px;position:relative;z-index:1;flex-wrap:wrap}
+.cta-btn-primary{
+  background:var(--orange);color:#fff;
+  font-size:.85rem;font-weight:600;
+  padding:14px 32px;border-radius:99px;border:none;cursor:none;
+  transition:background .25s,transform .2s,box-shadow .25s;
+  box-shadow:0 4px 24px rgba(238,146,33,.4);
+}
+.cta-btn-primary:hover{
+  background:var(--orange-dark);
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 0 40px rgba(238,146,33,.6),0 8px 24px rgba(238,146,33,.3);
+}
+.cta-btn-outline{
+  background:none;color:#fff;
+  font-size:.85rem;font-weight:500;
+  padding:14px 32px;border-radius:99px;
+  border:1px solid rgba(255,255,255,.2);cursor:none;
+  transition:border-color .2s,transform .2s,background .2s;
+}
+.cta-btn-outline:hover{
+  border-color:rgba(255,255,255,.45);
+  background:rgba(255,255,255,.06);
+  transform:translateY(-2px);
+}
+.cta-trust{
+  display:flex;align-items:center;justify-content:center;
+  gap:32px;margin-top:40px;position:relative;z-index:1;
+}
+.trust-item{
+  display:flex;align-items:center;gap:6px;
+  font-size:.72rem;color:rgba(255,255,255,.38);
+}
+
+/* FOOTER */
+footer{
+  background:#fff;
+  border-top:1px solid rgba(224,224,224,.5);
+  padding:80px 0 40px;
+}
+footer .inner{max-width:1300px;margin:0 auto;padding:0 40px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:48px;margin-bottom:60px}
+.footer-brand-desc{
+  font-size:.82rem;line-height:1.7;
+  color:var(--blue-2);max-width:240px;margin:16px 0 24px;
+}
+.footer-socials{display:flex;gap:8px}
+.social-btn{
+  width:34px;height:34px;border-radius:10px;
+  background:rgba(28,63,113,.06);
+  border:1px solid rgba(224,224,224,.6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;color:var(--blue-2);
+  text-decoration:none;cursor:none;
+  transition:background .2s,color .2s,transform .2s,border-color .2s;
+}
+.social-btn:hover{
+  background:var(--orange);color:#fff;
+  border-color:var(--orange);transform:scale(1.1);
+}
+.footer-col-title{
+  font-size:.78rem;font-weight:600;color:var(--blue);
+  margin-bottom:20px;letter-spacing:.02em;
+}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:12px}
+.footer-links a{
+  font-size:.8rem;color:var(--blue-2);text-decoration:none;
+  transition:color .15s,transform .15s;display:inline-block;
+}
+.footer-links a:hover{color:var(--orange);transform:translateX(3px)}
+.footer-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:28px;border-top:1px solid rgba(224,224,224,.5);
+  flex-wrap:wrap;gap:16px;
+}
+.footer-copy{font-size:.72rem;color:var(--blue-2)}
+.footer-legal{display:flex;gap:24px}
+.footer-legal a{font-size:.72rem;color:var(--blue-2);text-decoration:none;transition:color .15s}
+.footer-legal a:hover{color:var(--orange)}
+.footer-watermark{
+  text-align:center;margin-top:48px;
+  font-family:'Playfair Display',serif;font-weight:900;
+  font-size:clamp(4rem,10vw,8rem);letter-spacing:-.05em;
+  color:rgba(28,63,113,.04);line-height:.9;
+  user-select:none;pointer-events:none;
+}
+
+/* PARTICLES CANVAS */
+#particles-canvas{
+  position:absolute;inset:0;
+  pointer-events:none;z-index:0;
+}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  #hero{grid-template-columns:1fr;padding:100px 24px 60px}
+  #hero-canvas-wrap{height:400px}
+  #story .section-inner,
+  .showcase-grid,
+  .features-grid{grid-template-columns:1fr}
+  .numbers-row{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .cta-box{padding:60px 40px}
+}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .numbers-row{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr}
+}
+
+/* SCROLL REVEAL BASE */
+.reveal{opacity:0;transform:translateY(36px)}
+
+/* ANIMATED GRADIENT MESH BG */
+.mesh-bg{
+  position:absolute;inset:0;z-index:0;
+  overflow:hidden;pointer-events:none;
+}
+.mesh-orb{
+  position:absolute;border-radius:50%;
+  filter:blur(100px);
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div id="loader-left">
+    <div>
+      <div class="loader-word" style="color:#fff">RAW</div>
+    </div>
+  </div>
+  <div id="loader-right">
+    <div>
+      <div class="loader-word" style="color:var(--blue)">BANK</div>
+      <div class="loader-sub" id="loader-sub">Banking Beyond Limits</div>
+      <div class="loader-progress-wrap">
+        <div class="loader-progress" id="loader-progress"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <div class="nav-logo-dot">RB</div>
+    <span class="nav-logo-text">Rawbank</span>
+  </div>
+  <div class="nav-links">
+    <a href="#">Solutions</a>
+    <a href="#">Cards</a>
+    <a href="#">Business</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="nav-cta">
+    <button class="btn-ghost">Sign In</button>
+    <button class="btn-primary">Open Account</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero-section" style="position:relative;overflow:hidden;background:#FAFBFF">
+  <div class="mesh-bg">
+    <div class="mesh-orb" style="width:700px;height:700px;background:rgba(238,146,33,.12);top:-20%;right:-10%"></div>
+    <div class="mesh-orb" style="width:500px;height:500px;background:rgba(28,63,113,.08);bottom:-15%;left:-10%"></div>
+  </div>
+  <canvas id="particles-canvas"></canvas>
+
+  <div id="hero">
+    <!-- Content -->
+    <div class="hero-content">
+      <div class="hero-tag" id="hero-tag">
+        <span class="hero-tag-dot"></span>
+        The Future of Banking
+      </div>
+      <h1 class="hero-h1" id="hero-h1">
+        Banking<br/><em>Beyond</em><br/>Every Limit.
+      </h1>
+      <p class="hero-sub" id="hero-sub">
+        Experience the power of modern financial tools built for individuals
+        and businesses across Africa. Secure, seamless, always with you.
+      </p>
+      <div class="hero-btns" id="hero-btns">
+        <button class="btn-primary" style="font-size:.85rem;padding:13px 28px">Open Free Account</button>
+        <button class="btn-outline">
+          <span style="font-size:1rem">▶</span> Watch Demo
+        </button>
+      </div>
+      <div class="hero-stats" id="hero-stats">
+        <div>
+          <div class="stat-val">2M+</div>
+          <div class="stat-lbl">Customers</div>
+        </div>
+        <div style="width:1px;height:40px;background:rgba(224,224,224,.8);align-self:center"></div>
+        <div>
+          <div class="stat-val">$8B</div>
+          <div class="stat-lbl">Assets</div>
+        </div>
+        <div style="width:1px;height:40px;background:rgba(224,224,224,.8);align-self:center"></div>
+        <div>
+          <div class="stat-val">25Y</div>
+          <div class="stat-lbl">Trust</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <div id="hero-canvas-wrap">
+      <canvas id="hero-canvas"></canvas>
+
+      <!-- Glass overlay cards -->
+      <div class="hero-glass-card glass-card-success" id="gc-1"
+        style="bottom:60px;right:0;min-width:180px">
+        <div class="glass-card-label">Portfolio Balance</div>
+        <div class="glass-card-value">$24,850.00</div>
+        <div class="glass-card-sub">▲ +2.4% this month</div>
+      </div>
+      <div class="hero-glass-card" id="gc-2"
+        style="top:60px;left:-20px;min-width:200px;border-color:rgba(56,142,60,.3)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:28px;height:28px;border-radius:50%;background:rgba(56,142,60,.15);display:flex;align-items:center;justify-content:center;font-size:.8rem">✓</div>
+          <div>
+            <div class="glass-card-label" style="color:var(--green);font-size:.6rem">Transfer Complete</div>
+            <div style="font-size:.75rem;color:var(--blue-2);margin-top:2px">$1,200 → Sarah M.</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-glass-card" id="gc-3"
+        style="top:50%;transform:translateY(-50%);left:-30px;border-color:rgba(255,191,0,.3)">
+        <div class="glass-card-label">Savings Goal</div>
+        <div style="margin-top:6px;width:120px;height:4px;background:rgba(224,224,224,.6);border-radius:2px">
+          <div style="height:100%;width:72%;background:var(--gold);border-radius:2px"></div>
+        </div>
+        <div style="font-size:.65rem;color:var(--blue-2);margin-top:5px">72% · $3,600 of $5,000</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div id="scroll-indicator" style="position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0">
+    <span style="font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue-2)">Scroll</span>
+    <div id="scroll-line" style="width:1px;height:40px;background:rgba(238,146,33,.4)"></div>
+  </div>
+</section>
+
+<!-- STORY SECTION -->
+<section id="story">
+  <div class="section-inner">
+    <div class="story-text">
+      <div class="reveal">
+        <span class="section-tag">Why Rawbank</span>
+        <h2 class="section-h2">Your card is your<br/><em>superpower.</em></h2>
+        <p class="section-sub">
+          The Rawbank card doesn't just store money — it opens doors, unlocks
+          opportunities, and keeps you connected to everything that matters.
+        </p>
+      </div>
+
+      <div class="story-feature" id="sf1">
+        <div class="feature-icon">🔒</div>
+        <div>
+          <div class="feature-title">Bank-Grade Security</div>
+          <div class="feature-desc">Military-level encryption protects every transaction, every moment of every day.</div>
+        </div>
+      </div>
+      <div class="story-feature" id="sf2">
+        <div class="feature-icon">⚡</div>
+        <div>
+          <div class="feature-title">Instant Transfers</div>
+          <div class="feature-desc">Send money across Congo and worldwide in seconds, not days — 24/7.</div>
+        </div>
+      </div>
+      <div class="story-feature" id="sf3">
+        <div class="feature-icon">📱</div>
+        <div>
+          <div class="feature-title">Mobile First</div>
+          <div class="feature-desc">Full banking power in your pocket. iOS and Android, always updated.</div>
+        </div>
+      </div>
+      <div class="story-feature" id="sf4">
+        <div class="feature-icon">🌍</div>
+        <div>
+          <div class="feature-title">Pan-African Reach</div>
+          <div class="feature-desc">500+ branches and ATMs across the Democratic Republic of Congo.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky card -->
+    <div class="story-card-wrap reveal" id="story-card">
+      <div class="premium-card">
+        <div class="card-bg"></div>
+        <div class="card-shine"></div>
+        <div class="card-noise"></div>
+        <div class="card-chip"></div>
+        <div class="card-logo">RB</div>
+        <div class="card-number">•••• •••• •••• 4821</div>
+        <div class="card-holder">Jean-Marc Kalumba</div>
+        <div class="card-expiry">12/28</div>
+        <div class="card-network">
+          <div class="card-circle"></div>
+          <div class="card-circle"></div>
+        </div>
+      </div>
+      <div class="card-shadow"></div>
+      <div class="card-stat">
+        <div class="card-stat-icon">💳</div>
+        <div>
+          <div class="card-stat-val">1.2M+</div>
+          <div class="card-stat-lbl">Cards Issued & Active</div>
+        </div>
+        <div style="margin-left:auto">
+          <div style="font-size:.65rem;font-weight:600;padding:4px 10px;border-radius:99px;background:rgba(56,142,60,.12);color:var(--green)">Active</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<section id="numbers">
+  <div class="numbers-row">
+    <div class="num-item" id="ni1">
+      <div class="num-val">2<span>M+</span></div>
+      <div class="num-lbl">Active Customers</div>
+    </div>
+    <div class="num-divider"></div>
+    <div class="num-item" id="ni2">
+      <div class="num-val"><span>$</span>8B</div>
+      <div class="num-lbl">Assets Under Management</div>
+    </div>
+    <div class="num-divider"></div>
+    <div class="num-item" id="ni3">
+      <div class="num-val">500<span>+</span></div>
+      <div class="num-lbl">Branches & ATMs</div>
+    </div>
+    <div class="num-divider"></div>
+    <div class="num-item" id="ni4">
+      <div class="num-val">25<span>Y</span></div>
+      <div class="num-lbl">Years of Excellence</div>
+    </div>
+  </div>
+</section>
+
+<!-- IMAGE SHOWCASE -->
+<section id="showcase">
+  <div class="inner">
+    <div class="showcase-header reveal">
+      <span class="section-tag">Built for Humanity</span>
+      <h2 class="section-h2">Real people.<br/><em>Real ambitions.</em></h2>
+      <p class="section-sub" style="margin:0 auto">
+        From individual savers to enterprise clients — Rawbank powers the
+        financial dreams of millions across the DRC.
+      </p>
+    </div>
+    <div class="showcase-grid">
+      <!-- Image 1 -->
+      <div class="img-card" style="aspect-ratio:4/5" id="imgcard1">
+        <div class="img-mask" id="imgmask1">
+          <img src="/assets/images/man-leftside-in-yellow.JPG" alt="Individual Banking"
+            onerror="this.style.display='none';this.parentNode.parentNode.style.background='linear-gradient(135deg,#EE9221,#C07318)'"
+          />
+        </div>
+        <div class="img-overlay">
+          <div class="img-title">Individual Banking</div>
+          <div class="img-sub">Personal accounts for everyday excellence</div>
+        </div>
+        <div class="img-badge" style="top:24px;right:24px;opacity:0" id="ibadge1">
+          <div style="font-size:1.2rem;margin-bottom:4px">⭐</div>
+          <div class="img-badge-val">4.9/5</div>
+          <div class="img-badge-lbl">App Rating</div>
+        </div>
+      </div>
+
+      <!-- Image 2 -->
+      <div class="img-card img2-offset" style="aspect-ratio:4/5" id="imgcard2">
+        <div class="img-mask" id="imgmask2">
+          <img src="/assets/images/two-best-leftside-in-yellow.JPG" alt="Business Banking"
+            onerror="this.style.display='none';this.parentNode.parentNode.style.background='linear-gradient(135deg,#1C3F71,#4A6A99)'"
+          />
+        </div>
+        <div class="img-overlay" style="background:linear-gradient(to top,rgba(238,146,33,.7),transparent)">
+          <div class="img-title">Business Banking</div>
+          <div class="img-sub">Enterprise solutions that scale with you</div>
+        </div>
+        <div class="img-badge" style="bottom:100px;left:24px;opacity:0" id="ibadge2">
+          <div style="font-size:1.2rem;margin-bottom:4px">🏢</div>
+          <div class="img-badge-val">50K+</div>
+          <div class="img-badge-lbl">Business Clients</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="inner">
+    <div class="features-header reveal">
+      <span class="section-tag">Premium Features</span>
+      <h2 class="section-h2">Everything you need,<br/><em>nothing you don't.</em></h2>
+      <p class="section-sub" style="margin:0 auto">
+        A complete suite of financial tools designed for the modern world —
+        powerful, intuitive, and always improving.
+      </p>
+    </div>
+    <div class="features-grid" id="feat-grid">
+      <div class="feat-card" style="--accent:#EE9221">
+        <div class="feat-icon" style="background:rgba(238,146,33,.1);border:1px solid rgba(238,146,33,.2)">🛡️</div>
+        <div class="feat-title">Zero-Fraud Guarantee</div>
+        <div class="feat-desc">AI-powered fraud detection monitors every transaction 24/7 with instant alerts and automatic blocking.</div>
+        <div class="feat-stat"><span class="feat-stat-val" style="color:var(--orange)">99.8%</span><span class="feat-stat-lbl">Detection Rate</span></div>
+      </div>
+      <div class="feat-card" style="--accent:#1C3F71">
+        <div class="feat-icon" style="background:rgba(28,63,113,.08);border:1px solid rgba(28,63,113,.15)">🌐</div>
+        <div class="feat-title">Global Transfers</div>
+        <div class="feat-desc">Send money internationally with competitive FX rates. SWIFT, SEPA, and mobile money all covered.</div>
+        <div class="feat-stat"><span class="feat-stat-val" style="color:var(--blue)">180+</span><span class="feat-stat-lbl">Countries</span></div>
+      </div>
+      <div class="feat-card" style="--accent:#FFBF00">
+        <div class="feat-icon" style="background:rgba(255,191,0,.1);border:1px solid rgba(255,191,0,.2)">📈</div>
+        <div class="feat-title">Smart Savings</div>
+        <div class="feat-desc">Automated savings plans with high-yield interest accounts. Watch your money grow intelligently.</div>
+        <div class="feat-stat"><span class="feat-stat-val" style="color:var(--gold)">8.5%</span><span class="feat-stat-lbl">Annual Yield</span></div>
+      </div>
+      <div class="feat-card" style="--accent:#4A6A99">
+        <div class="feat-icon" style="background:rgba(74,106,153,.08);border:1px solid rgba(74,106,153,.15)">💼</div>
+        <div class="feat-title">Business Suite</div>
+        <div class="feat-desc">Complete tools for SMEs and enterprise: payroll, invoicing, multi-user access, and full API.</div>
+        <div class="feat-stat"><span class="feat-stat-val" style="color:var(--blue-2)">50K+</span><span class="feat-stat-lbl">Businesses</span></div>
+      </div>
+      <div class="feat-card" style="--accent:#388E3C">
+        <div class="feat-icon" style="background:rgba(56,142,60,.08);border:1px solid rgba(56,142,60,.15)">🤖</div>
+        <div class="feat-title">AI Financial Advisor</div>
+        <div class="feat-desc">Personalized insights powered by machine learning — your 24/7 money coach, always learning.</div>
+        <div class="feat-stat"><span class="feat-stat-val" style="color:var(--green)">24/7</span><span class="feat-stat-lbl">Availability</span></div>
+      </div>
+      <div class="feat-card" style="--accent:#C07318">
+        <div class="feat-icon" style="background:rgba(192,115,24,.08);border:1px solid rgba(192,115,24,.15)">🔄</div>
+        <div class="feat-title">Instant Payroll</div>
+        <div class="feat-desc">Automated salary disbursement in seconds. Bulk transfers with full compliance audit trail.</div>
+        <div class="feat-stat"><span class="feat-stat-val" style="color:var(--orange-dark)">3s</span><span class="feat-stat-lbl">Transfer Time</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BRAND -->
+<section id="brand">
+  <div class="inner">
+    <div class="brand-header reveal">
+      <span class="section-tag">The Rawbank Brand</span>
+      <h2 class="section-h2" style="color:#fff">25 years of trust.<br/><span style="color:var(--orange)">One clear mission.</span></h2>
+      <p class="section-sub" style="color:rgba(255,255,255,.6)">
+        Rawbank has been the financial backbone of the DRC since 2002 —
+        driving economic growth and empowering communities nationwide.
+      </p>
+    </div>
+    <div class="logos-row">
+      <div class="logo-pill" id="lp1">
+        <div class="logo-square">RB</div>
+        <div>
+          <div class="logo-info-main">Rawbank</div>
+          <div class="logo-info-sub">Compact Identity</div>
+        </div>
+      </div>
+      <div class="brand-plus">+</div>
+      <div class="logo-pill" id="lp2">
+        <div class="logo-square" style="font-size:.7rem;letter-spacing:.01em">RAW<br/>BANK</div>
+        <div>
+          <div class="logo-info-main">Brand Mark</div>
+          <div class="logo-info-sub">Full Identity System</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-bottom:24px">
+      <span style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3)">Trusted Network Partners</span>
+    </div>
+    <div class="partners">
+      <div class="partner-pill">Visa</div>
+      <div class="partner-pill">Mastercard</div>
+      <div class="partner-pill">SWIFT</div>
+      <div class="partner-pill">mPesa</div>
+      <div class="partner-pill">Orange Money</div>
+      <div class="partner-pill">Western Union</div>
+      <div class="partner-pill">MoneyGram</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="inner">
+    <div class="cta-box" id="cta-box">
+      <div class="cta-tag">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--orange);animation:pulse 1.5s infinite;display:inline-block"></span>
+        Open in 3 Minutes
+      </div>
+      <h2 class="cta-h2">Start your journey<br/>with <span>Rawbank</span> today.</h2>
+      <p class="cta-sub">
+        Join over 2 million Congolese who trust Rawbank with their financial future.
+        No paperwork, no queues, no limits.
+      </p>
+      <div class="cta-btns">
+        <button class="cta-btn-primary">Open Free Account →</button>
+        <button class="cta-btn-outline">Talk to an Advisor</button>
+      </div>
+      <div class="cta-trust">
+        <div class="trust-item">🔒 Bank-Secured</div>
+        <div class="trust-item">✓ BCC Regulated</div>
+        <div class="trust-item">🌍 DRC Licensed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="inner">
+    <div class="footer-grid">
+      <div>
+        <div class="nav-logo" style="margin-bottom:4px">
+          <div class="nav-logo-dot">RB</div>
+          <span class="nav-logo-text">Rawbank</span>
+        </div>
+        <p class="footer-brand-desc">
+          The leading commercial bank in the DRC, committed to driving financial
+          inclusion and economic growth across Africa since 2002.
+        </p>
+        <div class="footer-socials">
+          <a class="social-btn" href="#">𝕏</a>
+          <a class="social-btn" href="#">in</a>
+          <a class="social-btn" href="#">f</a>
+          <a class="social-btn" href="#">▶</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Products</div>
+        <ul class="footer-links">
+          <li><a href="#">Personal Account</a></li>
+          <li><a href="#">Business Account</a></li>
+          <li><a href="#">Cards</a></li>
+          <li><a href="#">Loans</a></li>
+          <li><a href="#">Investments</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Partners</a></li>
+          <li><a href="#">Investors</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <ul class="footer-links">
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">USSD *334#</a></li>
+          <li><a href="#">Branches</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Connect</div>
+        <ul class="footer-links">
+          <li><a href="#">Mobile App</a></li>
+          <li><a href="#">Internet Banking</a></li>
+          <li><a href="#">API Docs</a></li>
+          <li><a href="#">ATM Finder</a></li>
+          <li><a href="#">Newsroom</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2024 Rawbank S.A. — Registered in the Democratic Republic of Congo.</div>
+      <div class="footer-legal">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Cookies</a>
+        <a href="#">Compliance</a>
+      </div>
+    </div>
+    <div class="footer-watermark">RAWBANK</div>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ─── CURSOR ─────────────────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx = -100, my = -100, rx = -100, ry = -100;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top  = my + 'px';
+});
+
+(function animRing() {
+  rx += (mx - rx) * .13;
+  ry += (my - ry) * .13;
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+  requestAnimationFrame(animRing);
+})();
+
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+    ring.style.width = '54px'; ring.style.height = '54px';
+    ring.style.borderColor = 'rgba(238,146,33,.7)';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+    ring.style.width = '38px'; ring.style.height = '38px';
+    ring.style.borderColor = 'rgba(238,146,33,.45)';
+  });
+});
+
+// ─── PARTICLES ───────────────────────────────────────────────────────────────
+const pCanvas = document.getElementById('particles-canvas');
+const pCtx = pCanvas.getContext('2d');
+let particles = [];
+
+function resizeParticles() {
+  pCanvas.width  = pCanvas.offsetWidth;
+  pCanvas.height = pCanvas.offsetHeight;
+}
+
+function createParticles() {
+  particles = [];
+  const count = Math.floor(pCanvas.width / 20);
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * pCanvas.width,
+      y: Math.random() * pCanvas.height,
+      r: Math.random() * 2.5 + 1,
+      dx: (Math.random() - .5) * .4,
+      dy: (Math.random() - .5) * .4,
+      color: i % 3 === 0 ? '#EE9221' : i % 3 === 1 ? '#1C3F71' : '#FFBF00',
+      alpha: Math.random() * .3 + .08,
+    });
+  }
+}
+
+function animParticles() {
+  pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+  particles.forEach(p => {
+    p.x += p.dx; p.y += p.dy;
+    if (p.x < 0) p.x = pCanvas.width;
+    if (p.x > pCanvas.width) p.x = 0;
+    if (p.y < 0) p.y = pCanvas.height;
+    if (p.y > pCanvas.height) p.y = 0;
+    pCtx.beginPath();
+    pCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    pCtx.fillStyle = p.color;
+    pCtx.globalAlpha = p.alpha;
+    pCtx.fill();
+  });
+  pCtx.globalAlpha = 1;
+  requestAnimationFrame(animParticles);
+}
+
+window.addEventListener('resize', () => { resizeParticles(); createParticles(); });
+resizeParticles(); createParticles(); animParticles();
+
+// ─── THREE.JS HERO SCENE ─────────────────────────────────────────────────────
+(function initThree() {
+  const canvas = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+  camera.position.set(0, 0, 9);
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.8);
+  dir.position.set(4, 6, 5); dir.castShadow = true;
+  scene.add(dir);
+  const orange = new THREE.PointLight(0xEE9221, 1.2, 20);
+  orange.position.set(-4, 2, 3); scene.add(orange);
+  const blue = new THREE.PointLight(0x4A6A99, 0.7, 20);
+  blue.position.set(4, -2, 2); scene.add(blue);
+
+  // Card geometry
+  function makeCard(color, roughness = 0.15) {
+    const g = new THREE.BoxGeometry(2.5, 1.58, 0.075, 1, 1, 1);
+    const m = new THREE.MeshPhysicalMaterial({
+      color,
+      metalness: 0.55,
+      roughness,
+      clearcoat: 1,
+      clearcoatRoughness: 0.1,
+      reflectivity: 0.9,
+    });
+    return new THREE.Mesh(g, m);
+  }
+
+  // Cards
+  const card1 = makeCard(0xEE9221);
+  const card2 = makeCard(0x1C3F71, 0.2);
+  const card3 = makeCard(0x4A6A99, 0.18);
+
+  card1.position.set(-12, 0, 0);
+  card2.position.set(0, -10, -0.3);
+  card3.position.set(0, -10, -0.6);
+
+  card2.rotation.set(0.08, -0.28, -0.1);
+  card3.rotation.set(0.08, 0.28, 0.1);
+
+  scene.add(card1, card2, card3);
+
+  // Particles
+  const partGeo = new THREE.BufferGeometry();
+  const partCount = 80;
+  const positions = new Float32Array(partCount * 3);
+  for (let i = 0; i < partCount; i++) {
+    positions[i*3]   = (Math.random()-.5)*14;
+    positions[i*3+1] = (Math.random()-.5)*10;
+    positions[i*3+2] = (Math.random()-.5)*6;
+  }
+  partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const partMat = new THREE.PointsMaterial({ size: .07, color: 0xEE9221, transparent: true, opacity: .45 });
+  const pts = new THREE.Points(partGeo, partMat);
+  scene.add(pts);
+
+  // Resize
+  function resize() {
+    const w = canvas.parentElement.offsetWidth;
+    const h = canvas.parentElement.offsetHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Mouse
+  let targetX = 0, targetY = 0;
+  document.addEventListener('mousemove', e => {
+    targetX = (e.clientX / window.innerWidth - .5) * 2;
+    targetY = -(e.clientY / window.innerHeight - .5) * 2;
+  });
+
+  // Animate in with GSAP (after loader)
+  function startCardAnim() {
+    gsap.to(card1.position, { x: 0, duration: 1.2, ease: 'power3.out', delay: .2 });
+    gsap.to(card2.position, { x: -2.8, y: -.5, duration: 1.3, ease: 'power3.out', delay: .65 });
+    gsap.to(card3.position, { x: 2.8, y: -.5, duration: 1.3, ease: 'power3.out', delay: .85 });
+  }
+  window._startCards = startCardAnim;
+
+  // Render loop
+  const clock = new THREE.Clock();
+  let currentX = 0, currentY = 0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    currentX += (targetX - currentX) * .04;
+    currentY += (targetY - currentY) * .04;
+
+    card1.position.y += (Math.sin(t * .8) * .15 - card1.position.y) * .05;
+    card2.position.y += (Math.sin(t * .7 + 1) * .1 + (-.5) - card2.position.y) * .05;
+    card3.position.y += (Math.sin(t * .9 + 2) * .1 + (-.5) - card3.position.y) * .05;
+
+    card1.rotation.y = currentX * .2;
+    card1.rotation.x = currentY * .1;
+    card2.rotation.y = currentX * .15 - .28;
+    card3.rotation.y = currentX * .15 + .28;
+
+    pts.rotation.y = t * .025;
+    pts.rotation.x = t * .012;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+// ─── LOADER ANIMATION ────────────────────────────────────────────────────────
+const tl = gsap.timeline();
+
+// Show sub text and progress bar
+tl.to('#loader-sub', { autoAlpha: 1, y: 0, duration: .5, ease: 'power2.out' })
+  .to('#loader-progress', {
+    width: '100%', duration: 1.4,
+    ease: 'power2.inOut',
+  }, '-=.2')
+  // Split panels apart
+  .to('#loader-left', {
+    x: '-100%', duration: 1.05,
+    ease: 'cubic-bezier(0.4,0,0.2,1)',
+  }, '+=.15')
+  .to('#loader-right', {
+    x: '100%', duration: 1.05,
+    ease: 'cubic-bezier(0.4,0,0.2,1)',
+  }, '<')
+  // Hide loader
+  .to('#loader', { autoAlpha: 0, duration: .3, onComplete: () => {
+    document.getElementById('loader').style.display = 'none';
+
+    // Start 3D card animation
+    if (window._startCards) window._startCards();
+
+    // Nav in
+    gsap.to('#navbar', { y: 0, autoAlpha: 1, duration: .8, ease: 'power3.out', delay: .2 });
+
+    // Hero elements
+    gsap.to('#hero-tag',   { autoAlpha: 1, x: 0, duration: .6, delay: .5, ease: 'power2.out' });
+    gsap.to('#hero-h1',    { autoAlpha: 1, y: 0, duration: .9, delay: .7, ease: 'power3.out' });
+    gsap.to('#hero-sub',   { autoAlpha: 1, y: 0, duration: .7, delay: .95, ease: 'power2.out' });
+    gsap.to('#hero-btns',  { autoAlpha: 1, y: 0, duration: .6, delay: 1.1, ease: 'power2.out' });
+    gsap.to('#hero-stats', { autoAlpha: 1, y: 0, duration: .6, delay: 1.25, ease: 'power2.out' });
+
+    // Glass cards
+    gsap.to('#gc-1', { autoAlpha: 1, x: 0, duration: .7, delay: 2.2, ease: 'power2.out' });
+    gsap.to('#gc-2', { autoAlpha: 1, x: 0, duration: .7, delay: 2.5, ease: 'power2.out' });
+    gsap.to('#gc-3', { autoAlpha: 1, x: 0, duration: .7, delay: 2.7, ease: 'power2.out' });
+
+    // Scroll indicator
+    gsap.to('#scroll-indicator', { autoAlpha: 1, duration: .8, delay: 3.2 });
+
+    // Animate scroll line
+    gsap.to('#scroll-line', {
+      scaleY: .2, opacity: .2, duration: .9,
+      repeat: -1, yoyo: true, ease: 'sine.inOut',
+    });
+  }});
+
+// ─── NAVBAR SCROLL ────────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ─── SCROLL REVEAL ──────────────────────────────────────────────────────────
+document.querySelectorAll('.reveal').forEach(el => {
+  gsap.to(el, {
+    opacity: 1, y: 0, duration: .9, ease: 'power3.out',
+    scrollTrigger: {
+      trigger: el, start: 'top 80%',
+      toggleActions: 'play none none reverse',
+    },
+  });
+});
+
+// ─── STORY FEATURES ──────────────────────────────────────────────────────────
+['sf1','sf2','sf3','sf4'].forEach((id, i) => {
+  gsap.to(`#${id}`, {
+    opacity: 1, x: 0, duration: .7,
+    ease: 'power2.out',
+    delay: i * .1,
+    scrollTrigger: {
+      trigger: `#${id}`, start: 'top 85%',
+      toggleActions: 'play none none reverse',
+    },
+  });
+});
+
+// ─── STORY CARD PARALLAX ──────────────────────────────────────────────────────
+gsap.to('#story-card', {
+  y: 50, ease: 'none',
+  scrollTrigger: {
+    trigger: '#story',
+    start: 'top bottom', end: 'bottom top',
+    scrub: 1.8,
+  },
+});
+
+// ─── NUMBERS ─────────────────────────────────────────────────────────────────
+['ni1','ni2','ni3','ni4'].forEach((id, i) => {
+  gsap.to(`#${id}`, {
+    opacity: 1, y: 0, duration: .7,
+    delay: i * .12, ease: 'power2.out',
+    scrollTrigger: {
+      trigger: '#numbers', start: 'top 80%',
+    },
+  });
+});
+
+// ─── IMAGE REVEALS ────────────────────────────────────────────────────────────
+gsap.fromTo('#imgmask1',
+  { clipPath: 'inset(0 100% 0 0)' },
+  { clipPath: 'inset(0 0% 0 0)', duration: 1.2, ease: 'cubic-bezier(0.4,0,0.2,1)',
+    scrollTrigger: { trigger: '#imgcard1', start: 'top 75%' },
+    onComplete: () => {
+      gsap.to('#ibadge1', { opacity: 1, y: 0, duration: .5, ease: 'back.out(1.4)' });
+    }
+  }
+);
+gsap.fromTo('#imgcard1 img',
+  { scale: 1.15 },
+  { scale: 1, duration: 1.6, ease: 'power2.out',
+    scrollTrigger: { trigger: '#imgcard1', start: 'top 75%' }
+  }
+);
+
+gsap.fromTo('#imgmask2',
+  { clipPath: 'inset(0 0 0 100%)' },
+  { clipPath: 'inset(0 0 0 0%)', duration: 1.2, delay: .2, ease: 'cubic-bezier(0.4,0,0.2,1)',
+    scrollTrigger: { trigger: '#imgcard2', start: 'top 75%' },
+    onComplete: () => {
+      gsap.to('#ibadge2', { opacity: 1, y: 0, duration: .5, ease: 'back.out(1.4)' });
+    }
+  }
+);
+gsap.fromTo('#imgcard2 img',
+  { scale: 1.15 },
+  { scale: 1, duration: 1.6, delay: .2, ease: 'power2.out',
+    scrollTrigger: { trigger: '#imgcard2', start: 'top 75%' }
+  }
+);
+
+// Parallax on scroll
+gsap.to('#imgcard1 img', {
+  y: 50, ease: 'none',
+  scrollTrigger: { trigger: '#imgcard1', start: 'top bottom', end: 'bottom top', scrub: 1 }
+});
+gsap.to('#imgcard2 img', {
+  y: -40, ease: 'none',
+  scrollTrigger: { trigger: '#imgcard2', start: 'top bottom', end: 'bottom top', scrub: 1 }
+});
+
+// ─── FEATURE CARDS ────────────────────────────────────────────────────────────
+gsap.to('#feat-grid .feat-card', {
+  opacity: 1, y: 0, duration: .7,
+  stagger: .09, ease: 'power2.out',
+  scrollTrigger: { trigger: '#feat-grid', start: 'top 75%' }
+});
+
+// ─── BRAND LOGOS ──────────────────────────────────────────────────────────────
+gsap.to('#lp1', {
+  opacity: 1, scale: 1, duration: .8, ease: 'back.out(1.5)',
+  scrollTrigger: { trigger: '#brand', start: 'top 75%' }
+});
+gsap.to('#lp2', {
+  opacity: 1, scale: 1, duration: .8, delay: .18, ease: 'back.out(1.5)',
+  scrollTrigger: { trigger: '#brand', start: 'top 75%' }
+});
+
+// ─── CTA BOX ──────────────────────────────────────────────────────────────────
+gsap.to('#cta-box', {
+  opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+  scrollTrigger: { trigger: '#cta-box', start: 'top 78%' }
+});
+
+// ─── CTA BUTTON GLOW ─────────────────────────────────────────────────────────
+document.querySelector('.cta-btn-primary').addEventListener('mouseenter', function() {
+  this.style.boxShadow = '0 0 50px rgba(238,146,33,.7), 0 10px 30px rgba(238,146,33,.4)';
+});
+document.querySelector('.cta-btn-primary').addEventListener('mouseleave', function() {
+  this.style.boxShadow = '0 4px 24px rgba(238,146,33,.4)';
+});
+
+// ─── SMOOTH PARALLAX HERO BLOBS ───────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  const blobs = document.querySelectorAll('.mesh-orb');
+  blobs[0].style.transform = `translateY(${y * .15}px)`;
+  blobs[1].style.transform = `translateY(${-y * .1}px)`;
+}, { passive: true });
+
+// ─── CARD FLOAT ANIM (CSS) ───────────────────────────────────────────────────
+const storyCard = document.querySelector('.premium-card');
+if (storyCard) {
+  let angle = 0;
+  (function floatCard() {
+    angle += .015;
+    storyCard.style.transform = `rotateX(${Math.sin(angle * .7) * 3}deg) rotateY(${Math.cos(angle) * 5}deg) translateY(${Math.sin(angle) * 6}px)`;
+    requestAnimationFrame(floatCard);
+  })();
+}
+
+// ─── FEATURE CARD HOVER 3D ────────────────────────────────────────────────────
+document.querySelectorAll('.feat-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - .5;
+    const y = (e.clientY - rect.top) / rect.height - .5;
+    card.style.transform = `translateY(-6px) rotateX(${-y * 6}deg) rotateY(${x * 6}deg)`;
+    card.style.transition = 'box-shadow .3s, border-color .3s';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+    card.style.transition = 'transform .4s cubic-bezier(.4,0,.2,1), box-shadow .3s, border-color .3s';
+  });
+});
+
+// ─── LOGO PILL HOVER ──────────────────────────────────────────────────────────
+document.querySelectorAll('.logo-pill').forEach(p => {
+  p.addEventListener('mouseenter', () => {
+    p.style.transform = 'scale(1.04)';
+    p.style.background = 'rgba(255,255,255,.13)';
+  });
+  p.addEventListener('mouseleave', () => {
+    p.style.transform = '';
+    p.style.background = '';
+  });
+});
+</script>
+</body>
+</html>
