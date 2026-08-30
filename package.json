@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npx vite build",
-    "preview": "npx vite preview"
+    "build": "node scripts/vercel-build.cjs build",
+    "preview": "node scripts/vercel-build.cjs preview"
   },
   "dependencies": {
     "gsap": "^3.12.5",
