@@ -3,5 +3,21 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/',
   server: { port: 5173 },
+  build: {
+    chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-three': ['three'],
+          'vendor-charts': ['recharts'],
+          'vendor-map': ['leaflet', 'react-leaflet'],
+          'vendor-socket': ['socket.io-client'],
+          'vendor-gsap': ['gsap'],
+        },
+      },
+    },
+  },
 })
